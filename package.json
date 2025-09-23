@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node src/index.js",
     "start:dev": "nodemon src/index.js",
-    "test": "jest --coverageReporters=\"json-summary\"",
+    "test": "jest",
     "lint": "eslint ."
   },
   "license": "MIT",

@@ -2,5 +2,20 @@
     "collectCoverage": true,
     "collectCoverageFrom": [
         "src/**/*.js*"
-    ]
+    ],
+    "coveragePathIgnorePatterns": [
+        "node_modules",
+        "src/index.js",
+        "src/config.js",
+        "src/init.js"
+    ],
+    "coverageReporters": [
+        "json-summary",
+        "text"
+    ],
+    "coverageThreshold": {
+        "global": {
+            "lines": 80
+        }
+    }
 }
