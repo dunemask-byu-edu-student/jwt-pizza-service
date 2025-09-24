@@ -1,6 +1,6 @@
 const request = require('supertest');
 const app = require("../../src/service.js");
-const { createDinerUser, randomPassword, randomEmail, } = require("../test-util.js");
+const { createDinerUser, randomPassword, randomEmail, getAdminToken, } = require("../test-util.js");
 const config = require('../../src/config.js');
 describe('User Router Tests', () => {
     test('auth middleware valid user', async () => {
@@ -17,11 +17,8 @@ describe('User Router Tests', () => {
     });
 
     test('admin user exists', async () => {
-        const email = "a@jwt.com";
-        const password = config.adminPassword;
-        const loginRes = await request(app).put("/api/auth",).send({ email, password });
-        expect(loginRes.status).toBe(200);
-        const meRes = await request(app).get("/api/user/me").set("Authorization", `Bearer ${loginRes.body.token}`);
+        const adminToken = await getAdminToken();
+        const meRes = await request(app).get("/api/user/me").set("Authorization", `Bearer ${adminToken}`);
         expect(meRes.status).toBe(200);
         const adminRoleIndex = meRes.body.roles.findIndex((r) => r.role === "admin");
         expect(adminRoleIndex).not.toBe(-1);
@@ -31,14 +28,13 @@ describe('User Router Tests', () => {
         const randomUserEmail = randomEmail();
         const userData = await createDinerUser(randomUserEmail);
         expect(userData.user.id).toEqual(expect.any(Number));
-        console.log(userData.token);
-        console.log(userData.user);
         const putRes = await request(app)
             .put(`/api/user/${userData.user.id}`)
             .set("Authorization", `Bearer ${userData.token}`)
             .send({name: "New Name"});
-        console.log(putRes.status);
-        console.log(putRes.body);
+    
+        expect(putRes.body.user.name).toBe("New Name");
+        expect(putRes.body.user.email).toBe(randomUserEmail);
     });
 
     test('non admin cannot mutate another user', async () => {

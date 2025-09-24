@@ -111,21 +111,25 @@ class DB {
     const connection = await this.getConnection();
     try {
       const params = [];
+      const setClauses = [];
+
       if (password) {
         const hashedPassword = await bcrypt.hash(password, 10);
-        params.push(`password='${hashedPassword}'`);
+        setClauses.push(`password = ?`);
+        params.push(hashedPassword);
       }
       if (email) {
-        params.push(`email='${email}'`);
+        setClauses.push(`email = ?`);
+        params.push(email);
       }
       if (name) {
-        params.push(`name='${name}'`);
+        setClauses.push(`name = ?`);
+        params.push(name);
       }
-      if (params.length > 0) {
-        const query = `UPDATE user SET ${params.join(", ")} WHERE id=${userId}`;
-        await this.query(connection, query);
+      if (setClauses.length > 0) {
+        const query = `UPDATE user SET ${setClauses.join(", ")} WHERE id = ?`;
+        await this.query(connection, query, [...params, userId]);
       }
-      return this.getUser(email, password);
     } finally {
       connection.end();
     }
@@ -280,7 +284,7 @@ class DB {
     }
   }
 
-  async getFranchises(authUser, page = 0, limit = 10, nameFilter = "*") {
+  async getFranchises(authUser, page = 0, limit = 100, nameFilter = "*") {
     const connection = await this.getConnection();
 
     const offset = page * limit;
@@ -449,13 +453,9 @@ class DB {
         );
         await connection.query(`USE ${config.db.connection.database}`);
 
-        if (!dbExists) {
-          console.log("Successfully created database");
-        }
+        if (!dbExists) console.log("Successfully created database");
 
-        for (const statement of dbModel.tableCreateStatements) {
-          await connection.query(statement);
-        }
+        for (const statement of dbModel.tableCreateStatements) await connection.query(statement);
 
         if (!dbExists) {
           const defaultAdmin = {

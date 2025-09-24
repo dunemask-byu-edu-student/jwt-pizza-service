@@ -56,13 +56,15 @@ userRouter.put(
     const user = req.user;
     const isSelfMutate = user.id === userId;
     const isAdmin = user.isRole(Role.Admin);
-    if (!isSelfMutate && !isAdmin) {
-      return res.status(403).json({ message: "unauthorized" });
-    }
+    if (!isSelfMutate && !isAdmin) return res.status(403).json({ message: "unauthorized" });
 
-    const updatedUser = await DB.updateUser(userId, name, email, password);
-    const auth = await setAuth(updatedUser);
-    res.json({ user: updatedUser, token: auth });
+    await DB.updateUser(userId, name, email, password);
+    user.name = name ?? user.name;
+    user.email = email ?? user.email;
+
+    const auth = await setAuth(user);
+
+    res.json({ user, token: auth });
   }),
 );
 
