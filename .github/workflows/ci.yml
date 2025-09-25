@@ -60,7 +60,7 @@ jobs:
           };" > src/config.js
 
       - name: Init DB
-        run: node src/init.js Root a@jwt.com ${{ secrets.JWT_SECRET }}
+        run: node src/init.js Root a@jwt.com "${{ env.CI_ADMIN_PASSWORD }}"
 
       - name: Tests
         run: npm test
