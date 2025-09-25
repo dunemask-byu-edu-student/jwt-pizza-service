@@ -37,9 +37,6 @@ jobs:
 
       - name: Lint
         run: npm run lint
-      
-      - name: Init DB
-        run: node src/init.js Root a@jwt.com ${{ secrets.JWT_SECRET }}
 
       - name: Write config file
         run: |
@@ -61,6 +58,9 @@ jobs:
             },
             adminPassword: '${{ env.CI_ADMIN_PASSWORD }}'
           };" > src/config.js
+
+      - name: Init DB
+        run: node src/init.js Root a@jwt.com ${{ secrets.JWT_SECRET }}
 
       - name: Tests
         run: npm test
