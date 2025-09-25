@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.set_version.outputs.version }}
+    env:
+      CI_ADMIN_PASSWORD: pasghetti
     services:
       mysql:
         image: mysql:8.0.29
@@ -35,6 +37,9 @@ jobs:
 
       - name: Lint
         run: npm run lint
+      
+      - name: Init DB
+        run: node src/init.js Root a@jwt.com ${{ secrets.JWT_SECRET }}
 
       - name: Write config file
         run: |
@@ -54,6 +59,7 @@ jobs:
               url: 'https://pizza-factory.cs329.click',
               apiKey: '${{ secrets.FACTORY_API_KEY }}',
             },
+            adminPassword: '${{ env.CI_ADMIN_PASSWORD }}'
           };" > src/config.js
 
       - name: Tests

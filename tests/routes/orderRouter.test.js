@@ -36,8 +36,6 @@ describe('Order Router Tests', () => {
             franchiseId: franchise.id
         });
         expect(orderRes.status).toBe(200);
-        console.log(orderRes.body);
-
 
         // Delete Farnchise
         await deleteStore(franchise.id, store.id);
