@@ -7,6 +7,8 @@ const { randomBytes } = require("node:crypto");
 
 let httpServer;
 
+const randomInt = (max) => Math.floor(Math.random() * max);
+
 const randomSlug = () => Math.random().toString(36).substring(2);
 
 function randomPassword(length, charset) {
@@ -46,7 +48,7 @@ async function createDinerUser(email = randomEmail(), password = randomPassword(
 async function createFranshise() {
     const franchiseAdminEmail = randomEmail();
     await createDinerUser(franchiseAdminEmail);
-    const name = `New Franchise ${Math.floor(Date.now() / 1000)}`;
+    const name = `New Franchise ${Math.floor(Date.now() / 1000)} ${randomSlug()}`;
     const adminToken = await getAdminToken();
     const createFranchiseData = { name, admins: [{ email: franchiseAdminEmail }] };
     const createFranchiseRes = await request(app).post("/api/franchise").set("Authorization", `Bearer ${adminToken}`).send(createFranchiseData);
@@ -61,7 +63,7 @@ async function deleteFranchise(franchiseId) {
 }
 
 async function createStore(franchiseId) {
-    const name = `New Store ${Math.floor(Date.now() / 1000)}`;
+    const name = `New Store ${Math.floor(Date.now() / 1000)}  ${randomSlug()}`;
     const adminToken = await getAdminToken();
     const createStoreRes = await request(app)
         .post(`/api/franchise/${franchiseId}/store`)
@@ -89,5 +91,6 @@ module.exports = {
     deleteStore,
     randomSlug,
     randomPassword,
-    randomEmail
+    randomEmail,
+    randomInt
 }

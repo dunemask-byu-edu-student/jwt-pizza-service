@@ -122,16 +122,12 @@ async function setAuth(user) {
 
 async function clearAuth(req) {
   const token = readAuthToken(req);
-  if (token) {
-    await DB.logoutUser(token);
-  }
+  if (token) await DB.logoutUser(token);
 }
 
 function readAuthToken(req) {
   const authHeader = req.headers.authorization;
-  if (authHeader) {
-    return authHeader.split(" ")[1];
-  }
+  if (authHeader) return authHeader.split(" ")[1];
   return null;
 }
 
