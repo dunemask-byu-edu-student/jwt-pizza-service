@@ -58,6 +58,7 @@ jobs:
             },
             adminPassword: '${{ env.CI_ADMIN_PASSWORD }}'
           };" > src/config.js
+          cat src/config.js
 
       - name: Init DB
         run: node src/init.js Root a@jwt.com "${{ env.CI_ADMIN_PASSWORD }}"
