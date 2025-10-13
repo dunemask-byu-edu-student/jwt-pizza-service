@@ -24,15 +24,15 @@ describe('User Router Tests', () => {
         expect(adminRoleIndex).not.toBe(-1);
     });
 
-    test('admin mutate self', async ()=>{
+    test('admin mutate self', async () => {
         const randomUserEmail = randomEmail();
         const userData = await createDinerUser(randomUserEmail);
         expect(userData.user.id).toEqual(expect.any(Number));
         const putRes = await request(app)
             .put(`/api/user/${userData.user.id}`)
             .set("Authorization", `Bearer ${userData.token}`)
-            .send({name: "New Name"});
-    
+            .send({ name: "New Name" });
+
         expect(putRes.body.user.name).toBe("New Name");
         expect(putRes.body.user.email).toBe(randomUserEmail);
     });
@@ -48,6 +48,31 @@ describe('User Router Tests', () => {
             .set("Authorization", `Bearer ${userDataOne.token}`)
             .send({ name: "New Name" });
         expect(putRes.status).toBe(403);
+    });
+
+    test('admin list users', async () => {
+        const randomUserEmail = randomEmail();
+        await createDinerUser(randomUserEmail);
+        const adminToken = await getAdminToken();
+        const listNameRes = await request(app).get(`/api/user?name=${encodeURIComponent(randomUserEmail)}`).set("Authorization", `Bearer ${adminToken}`);
+        expect(listNameRes.body.length).not.toBeGreaterThan(1);
+        const userIndex = listNameRes.body.findIndex(({ email }) => email === randomUserEmail);
+        expect(userIndex).not.toBe(-1);
+        const listMaxRes = await request(app).get(`/api/user`).set("Authorization", `Bearer ${adminToken}`);
+        expect(listMaxRes.body.length).toEqual(10);
 
     });
+
+    test('admin delete user', async () => {
+        const randomUserEmail = randomEmail();
+        const userData = await createDinerUser(randomUserEmail);
+        const adminToken = await getAdminToken();
+        const deleteRes = await request(app).delete(`/api/user/${userData.user.id}`).set("Authorization", `Bearer ${adminToken}`);
+        expect(deleteRes.status).toBe(200);
+        
+        const listRes = await request(app).get(`/api/user?name=${encodeURIComponent(randomUserEmail)}`).set("Authorization", `Bearer ${adminToken}`);
+        expect(listRes.body.length).toEqual(0);
+
+    });
+
 });

@@ -76,6 +76,11 @@ class DB {
     }
   }
 
+  async getUserRole(userId) {
+    const roleResult = await this.query(await this.getConnection(), 'SELECT * FROM userRole WHERE userId=?', [userId]);
+    return roleResult.map((r) => ({ objectId: r.objectId || undefined, role: r.role }));
+  }
+
   async getUser(email, password) {
     const connection = await this.getConnection();
     try {
@@ -92,20 +97,43 @@ class DB {
         throw new StatusCodeError("unknown user", 404);
       }
 
-      const roleResult = await this.query(
-        connection,
-        `SELECT * FROM userRole WHERE userId=?`,
-        [user.id],
-      );
-      const roles = roleResult.map((r) => {
-        return { objectId: r.objectId || undefined, role: r.role };
-      });
+      const roles = await this.getUserRole(user.id);
 
       return { ...user, roles: roles, password: undefined };
     } finally {
       connection.end();
     }
   }
+
+  async listUsers(page = 1, name = "") {
+    const connection = await this.getConnection();
+    try {
+      const offset = this.getOffset(page, config.db.listPerPage);
+      console.log([`%${name.toLowerCase()}%`, config.db.listPerPage, offset]);
+      // Security Risk
+      let query = `SELECT * FROM user \${WHERE_NAME} LIMIT ${offset},${config.db.listPerPage}`;
+      query = query.replaceAll(`\${WHERE_NAME}`, !!name ? "WHERE LOWER(name) LIKE ?" : "");
+      const userResult = await this.query(connection, query, [`${name.toLowerCase()}`]);
+      return await Promise.all(userResult.map(async (user) => {
+        const roles = await this.getUserRole(user.id);
+        return { ...user, roles: roles, password: undefined };
+      }));
+    } finally {
+      connection.end();
+    }
+  }
+
+  async deleteUser(userId) {
+    const connection = await this.getConnection();
+    try {
+      await this.query(connection, `DELETE FROM userRole WHERE userId = ?`, [userId]);
+      await this.query(connection, `DELETE FROM user WHERE id = ?`, [userId]);
+    } finally {
+      connection.end();
+    }
+  }
+
+
 
   async updateUser(userId, name, email, password) {
     const connection = await this.getConnection();
@@ -196,6 +224,9 @@ class DB {
       connection.end();
     }
   }
+
+
+
 
   async addDinerOrder(user, order) {
     const connection = await this.getConnection();

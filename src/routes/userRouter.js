@@ -46,6 +46,22 @@ userRouter.get(
   }),
 );
 
+userRouter.get(
+  "/",
+  authRouter.authenticateToken,
+  asyncHandler(async (req, res) => {
+    const user = req.user;
+    const isAdmin = user.isRole(Role.Admin);
+    if (!isAdmin) return res.status(403).json({ message: "unauthorized" });
+
+    // Get query params
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const nameFilter = req.query.name || "";
+    const users = await DB.listUsers(page, nameFilter);
+    res.json(users);
+  }));
+
 // updateUser
 userRouter.put(
   "/:userId",
@@ -67,5 +83,20 @@ userRouter.put(
     res.json({ user, token: auth });
   }),
 );
+
+userRouter.delete(
+  "/:userId",
+  authRouter.authenticateToken,
+  asyncHandler(async (req, res) => {
+    const userId = Number(req.params.userId);
+    const user = req.user;
+    const isAdmin = user.isRole(Role.Admin);
+    if (!isAdmin) return res.status(403).json({ message: "unauthorized" });
+    await DB.deleteUser(userId);
+    res.sendStatus(200);
+
+  }));
+
+
 
 module.exports = userRouter;
