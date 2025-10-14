@@ -58,8 +58,8 @@ userRouter.get(
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const nameFilter = req.query.name || "";
-    const users = await DB.listUsers(page, nameFilter);
-    res.json(users);
+    const { users, more } = await DB.listUsers(page, nameFilter);
+    res.json({ users, more })
   }));
 
 // updateUser

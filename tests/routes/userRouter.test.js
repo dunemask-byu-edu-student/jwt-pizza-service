@@ -55,12 +55,12 @@ describe('User Router Tests', () => {
         await createDinerUser(randomUserEmail);
         const adminToken = await getAdminToken();
         const listNameRes = await request(app).get(`/api/user?name=${encodeURIComponent(randomUserEmail)}`).set("Authorization", `Bearer ${adminToken}`);
-        expect(listNameRes.body.length).not.toBeGreaterThan(1);
-        const userIndex = listNameRes.body.findIndex(({ email }) => email === randomUserEmail);
+        expect(listNameRes.body.users.length).not.toBeGreaterThan(1);
+        const userIndex = listNameRes.body.users.findIndex(({ email }) => email === randomUserEmail);
         expect(userIndex).not.toBe(-1);
         const listMaxRes = await request(app).get(`/api/user`).set("Authorization", `Bearer ${adminToken}`);
-        expect(listMaxRes.body.length).toEqual(10);
-
+        expect(listMaxRes.body.users.length).toEqual(10);
+        expect(listMaxRes.body.more).toBe(true);
     });
 
     test('admin delete user', async () => {
@@ -69,9 +69,9 @@ describe('User Router Tests', () => {
         const adminToken = await getAdminToken();
         const deleteRes = await request(app).delete(`/api/user/${userData.user.id}`).set("Authorization", `Bearer ${adminToken}`);
         expect(deleteRes.status).toBe(200);
-        
+
         const listRes = await request(app).get(`/api/user?name=${encodeURIComponent(randomUserEmail)}`).set("Authorization", `Bearer ${adminToken}`);
-        expect(listRes.body.length).toEqual(0);
+        expect(listRes.body.users.length).toEqual(0);
 
     });
 

@@ -77,8 +77,13 @@ class DB {
   }
 
   async getUserRole(userId) {
-    const roleResult = await this.query(await this.getConnection(), 'SELECT * FROM userRole WHERE userId=?', [userId]);
-    return roleResult.map((r) => ({ objectId: r.objectId || undefined, role: r.role }));
+    const connection = await this.getConnection();
+    try {
+      const roleResult = await this.query(connection, 'SELECT * FROM userRole WHERE userId=?', [userId]);
+      return roleResult.map((r) => ({ objectId: r.objectId || undefined, role: r.role }));
+    } finally {
+      connection.close();
+    }
   }
 
   async getUser(email, password) {
@@ -109,15 +114,18 @@ class DB {
     const connection = await this.getConnection();
     try {
       const offset = this.getOffset(page, config.db.listPerPage);
-      console.log([`%${name.toLowerCase()}%`, config.db.listPerPage, offset]);
       // Security Risk
-      let query = `SELECT * FROM user \${WHERE_NAME} LIMIT ${offset},${config.db.listPerPage}`;
+      let query = `SELECT * FROM user \${WHERE_NAME} LIMIT ${offset},${config.db.listPerPage + 1}`;
       query = query.replaceAll(`\${WHERE_NAME}`, !!name ? "WHERE LOWER(name) LIKE ?" : "");
-      const userResult = await this.query(connection, query, [`${name.toLowerCase()}`]);
-      return await Promise.all(userResult.map(async (user) => {
+      let userResult = await this.query(connection, query, [`${name.toLowerCase()}`]);
+      const more = userResult.length > config.db.listPerPage;
+      if (more) userResult = userResult.slice(0, config.db.listPerPage);
+
+      const users = await Promise.all(userResult.map(async (user) => {
         const roles = await this.getUserRole(user.id);
         return { ...user, roles: roles, password: undefined };
       }));
+      return { users, more };
     } finally {
       connection.end();
     }
