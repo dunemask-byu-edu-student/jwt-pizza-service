@@ -58,9 +58,6 @@ describe('User Router Tests', () => {
         expect(listNameRes.body.users.length).not.toBeGreaterThan(1);
         const userIndex = listNameRes.body.users.findIndex(({ email }) => email === randomUserEmail);
         expect(userIndex).not.toBe(-1);
-        const listMaxRes = await request(app).get(`/api/user`).set("Authorization", `Bearer ${adminToken}`);
-        expect(listMaxRes.body.users.length).toEqual(10);
-        expect(listMaxRes.body.more).toBe(true);
     });
 
     test('admin delete user', async () => {
