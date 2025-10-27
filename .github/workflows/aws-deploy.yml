@@ -38,6 +38,7 @@ jobs:
         run: |
           docker build \
           --platform=linux/arm64 -t $ECR_REGISTRY/$ECR_REPOSITORY --push \
+          --build-arg DATABASE_HOST=${{ secrets.PRODUCTION_DATABASE_HOST }} \
           --build-arg DATABASE_USERNAME=${{ secrets.PRODUCTION_DATABASE_USERNAME }} \
           --build-arg DATABASE_PASSWORD=${{ secrets.PRODUCTION_DATABASE_PASSWORD }} \
           --build-arg JWT_SECRET=${{ secrets.FACTORY_API_KEY }} \

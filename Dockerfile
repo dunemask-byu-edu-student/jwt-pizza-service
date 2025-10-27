@@ -2,6 +2,7 @@ ARG NODE_VERSION=22
 ARG JWT_SECRET=CI
 ARG FACTORY_API_KEY=UNPROVIDED
 ARG ADMIN_PASSWORD=potato
+ARG DATABASE_HOST=host.docker.internal
 ARG DATABASE_USERNAME=root
 ARG DATABASE_PASSWORD=tempdbpassword
 
@@ -14,7 +15,7 @@ module.exports = {
   jwtSecret: '${JWT_SECRET}',
   db: {
     connection: {
-      host: '127.0.0.1',
+      host: '${DATABASE_HOST}',
       user: '${DATABASE_USERNAME}',
       password: '${DATABASE_PASSWORD}',
       database: 'pizza',
