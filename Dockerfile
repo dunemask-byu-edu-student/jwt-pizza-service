@@ -9,7 +9,8 @@ ARG DATABASE_PASSWORD=tempdbpassword
 FROM node:${NODE_VERSION}-alpine
 WORKDIR /usr/src/app
 COPY . .
-RUN echo "module.exports = {
+RUN cat > src/config.js <<EOF
+module.exports = {
   jwtSecret: '${JWT_SECRET}',
   db: {
     connection: {
@@ -26,7 +27,8 @@ RUN echo "module.exports = {
     apiKey: '${FACTORY_API_KEY}',
   },
   adminPassword: '${ADMIN_PASSWORD}'
-};" > src/config.js && cat src/config.js
+};
+EOF
 RUN npm ci
 EXPOSE 3000
 CMD ["node", "src/index.js", "3000"]
