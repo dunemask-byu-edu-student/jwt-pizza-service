@@ -1,0 +1,10 @@
+services:
+  jwt-pizza-service:
+    image: jwt-pizza-service:main
+    restart: always
+    ports: ["3000:3000"]
+    extra_hosts: ["host.docker.internal:host-gateway"]
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: jwt_pizza_service

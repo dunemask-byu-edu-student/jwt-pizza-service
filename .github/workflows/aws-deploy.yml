@@ -1,0 +1,46 @@
+name: AWS Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Create OIDC token to AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          audience: sts.amazonaws.com
+          aws-region: us-east-1
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT }}:role/${{ secrets.CI_IAM_ROLE }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+      - name: Set up machine emulation
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker build
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push container image
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: "jwt-pizza-service"
+        run: |
+          docker build \
+          --platform=linux/arm64 -t $ECR_REGISTRY/$ECR_REPOSITORY --push \
+          --build-arg DATABASE_USERNAME=${{ secrets.PRODUCTION_DATABASE_USERNAME }} \
+          --build-arg DATABASE_PASSWORD=${{ secrets.PRODUCTION_DATABASE_PASSWORD }} \
+          --build-arg JWT_SECRET=${{ secrets.FACTORY_API_KEY }} \
+          --build-arg FACTORY_API_KEY=${{ secrets.FACTORY_API_KEY }} \
+          --build-arg ADMIN_PASSWORD=${{ secrets.PRODUCTION_ADMIN_PASSWORD }} \
+          .
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:latest" >>  $GITHUB_OUTPUT
