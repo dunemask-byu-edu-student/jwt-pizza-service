@@ -6,12 +6,12 @@ WORKDIR /usr/src/app
 COPY . .
 RUN cat > src/config.js <<EOF
 module.exports = {
-  jwtSecret: '${JWT_SECRET}',
+  jwtSecret: process.env.JWT_SECRET,
   db: {
     connection: {
-      host: '${DATABASE_HOST}',
-      user: '${DATABASE_USERNAME}',
-      password: '${DATABASE_PASSWORD}',
+      host: process.env.DB_HOST,
+      user: process.env.DB_USERNAME,
+      password: process.env.DB_PASSWORD,
       database: 'pizza',
       connectTimeout: 60000,
     },
@@ -19,11 +19,11 @@ module.exports = {
   },
   factory: {
     url: 'https://pizza-factory.cs329.click',
-    apiKey: '${FACTORY_API_KEY}',
+    apiKey: process.env.FACTORY_API_KEY,
   },
-  adminPassword: '${ADMIN_PASSWORD}'
+  adminPassword: process.env.ADMIN_PASSWORD
 };
 EOF
 RUN npm ci
 EXPOSE 3000
-CMD ["cat", "src/config.js"]
+CMD ["node", "src/index.js", "3000"]
