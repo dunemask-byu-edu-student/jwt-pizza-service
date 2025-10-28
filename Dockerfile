@@ -1,13 +1,7 @@
 ARG NODE_VERSION=22
-ARG JWT_SECRET=CI
-ARG FACTORY_API_KEY=UNPROVIDED
-ARG ADMIN_PASSWORD=potato
-ARG DATABASE_HOST=host.docker.internal
-ARG DATABASE_USERNAME=root
-ARG DATABASE_PASSWORD=tempdbpassword
-
 
 FROM node:${NODE_VERSION}-alpine
+
 WORKDIR /usr/src/app
 COPY . .
 RUN cat > src/config.js <<EOF
@@ -32,4 +26,4 @@ module.exports = {
 EOF
 RUN npm ci
 EXPOSE 3000
-CMD ["node", "src/index.js", "3000"]
+CMD ["cat", "src/config.js"]
