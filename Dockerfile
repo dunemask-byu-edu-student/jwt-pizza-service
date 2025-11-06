@@ -21,7 +21,12 @@ module.exports = {
     url: 'https://pizza-factory.cs329.click',
     apiKey: process.env.FACTORY_API_KEY,
   },
-  adminPassword: process.env.ADMIN_PASSWORD
+  adminPassword: process.env.ADMIN_PASSWORD,
+  metrics: {
+    apiKey: process.env.GRAFANA_METRICS_API_KEY,
+    source: process.env.GRAFANA_METRICS_SOURCE,
+    url: "https://otlp-gateway-prod-us-west-0.grafana.net/otlp/v1/metrics"
+  }
 };
 EOF
 RUN npm ci
