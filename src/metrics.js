@@ -83,7 +83,7 @@ function getPizzaRevenue() {
 
 function recordRequest(method) {
     metrics.requests[method] = (metrics.requests[method] ?? 0) + 1;
-    metrics.requests.total += (metrics.requests.total ?? 0) + 1;
+    metrics.requests.total = (metrics.requests.total ?? 0) + 1;
 }
 
 function recordLoginEvent(loggedIn) {
