@@ -137,8 +137,8 @@ function sendMetricsBatchToGrafana(metricsList) {
 
     const metricsPayload = metricsList.map((m) => {
         const dataPoint = { timeUnixNano, attributes: [{ key: "source", value: { stringValue: config.metrics.source } }] };
-        if (Number.isInteger(m.value)) dataPoint.asInt = m.value;
-        else dataPoint.asDouble = m.value;
+        if (Number.isInteger(m.value)) dataPoint.asInt = m.value ?? 0;
+        else dataPoint.asDouble = m.value ?? 0;
 
         const metric = { name: m.name, unit: m.unit, [m.type]: { dataPoints: [dataPoint] } };
         if (m.type === 'sum') {
