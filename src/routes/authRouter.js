@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const config = require("../config.js");
 const { asyncHandler } = require("../endpointHelper.js");
 const { DB, Role } = require("../database/database.js");
+const { recordAuthenticationAttempt, recordLoginEvent } = require("../metrics.js");
 
 const authRouter = express.Router();
 
@@ -98,9 +99,13 @@ authRouter.put(
   "/",
   asyncHandler(async (req, res) => {
     const { email, password } = req.body;
-    const user = await DB.getUser(email, password);
-    const auth = await setAuth(user);
-    res.json({ user: user, token: auth });
+    const userOrErr = await DB.getUser(email, password).catch((err) => err);
+    const badLogin = userOrErr instanceof Error;
+    recordAuthenticationAttempt(!badLogin);
+    if (badLogin) throw userOrErr;
+    const auth = await setAuth(userOrErr);
+    recordLoginEvent(true);
+    res.json({ user: userOrErr, token: auth });
   }),
 );
 
@@ -110,6 +115,7 @@ authRouter.delete(
   authRouter.authenticateToken,
   asyncHandler(async (req, res) => {
     await clearAuth(req);
+    recordLoginEvent(false);
     res.json({ message: "logout successful" });
   }),
 );

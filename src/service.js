@@ -54,9 +54,9 @@ app.use("*", (req, res) => {
 
 // Default error handler for all exceptions and errors.
 app.use((err, req, res, next) => {
-  console.error(`A 500 error occurred at ${req.path}`);
-  console.error(err.message);
-  console.log(err.stack);
+  // console.error(`A 500 error occurred at ${req.path}`);
+  // console.error(err.message);
+  // console.log(err.stack);
   res
     .status(err.statusCode ?? 500)
     .json({ message: "An unexpected error occurred", stack: "Redacted for security" });

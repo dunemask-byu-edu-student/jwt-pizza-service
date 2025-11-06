@@ -3,6 +3,7 @@ const config = require("../config.js");
 const { Role, DB } = require("../database/database.js");
 const { authRouter } = require("./authRouter.js");
 const { asyncHandler, StatusCodeError } = require("../endpointHelper.js");
+const { recordPizzaSale, recordPizzaLatency } = require("../metrics.js");
 
 const orderRouter = express.Router();
 
@@ -115,6 +116,7 @@ orderRouter.post(
   asyncHandler(async (req, res) => {
     const orderReq = req.body;
     const order = await DB.addDinerOrder(req.user, orderReq);
+    const start = process.hrtime.bigint(); // high-resolution start time
     const r = await fetch(`${config.factory.url}/api/order`, {
       method: "POST",
       headers: {
@@ -126,7 +128,13 @@ orderRouter.post(
         order,
       }),
     });
+    const end = process.hrtime.bigint();
+    const latencyMs = Number(end - start) / 1_000_000; // convert nanoseconds → milliseconds
+    recordPizzaLatency(latencyMs);
+
     const j = await r.json();
+    const orderTotal = order.items.reduce((a, i) => a + i.price, 0);
+    recordPizzaSale(r.ok, orderTotal);
     if (r.ok) {
       res.send({ order, followLinkToEndChaos: j.reportUrl, jwt: j.jwt });
     } else {

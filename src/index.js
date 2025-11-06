@@ -1,4 +1,6 @@
+require('dotenv').config()
 const app = require("./service.js");
+require("./metrics.js");
 
 // const express = require("express");
 // const app = express();
