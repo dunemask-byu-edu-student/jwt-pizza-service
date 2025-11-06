@@ -37,13 +37,7 @@ jobs:
           ECR_REPOSITORY: "jwt-pizza-service"
         run: |
           docker build \
-          --platform=linux/arm64 -t $ECR_REGISTRY/$ECR_REPOSITORY --push \
-          --build-arg DATABASE_HOST=${{ secrets.PRODUCTION_DATABASE_HOST }} \
-          --build-arg DATABASE_USERNAME=${{ secrets.PRODUCTION_DATABASE_USERNAME }} \
-          --build-arg DATABASE_PASSWORD=${{ secrets.PRODUCTION_DATABASE_PASSWORD }} \
-          --build-arg JWT_SECRET=${{ secrets.FACTORY_API_KEY }} \
-          --build-arg FACTORY_API_KEY=${{ secrets.FACTORY_API_KEY }} \
-          --build-arg ADMIN_PASSWORD=${{ secrets.PRODUCTION_ADMIN_PASSWORD }} \
+          --platform=linux/arm64 -t $ECR_REGISTRY/$ECR_REPOSITORY --push
           .
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:latest" >>  $GITHUB_OUTPUT
       - name: Deploy new container
