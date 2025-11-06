@@ -172,14 +172,14 @@ function sendMetricsBatchToGrafana(metricsList) {
         .then((response) => {
             if (!response.ok) {
                 response.text().then((text) => {
-                    console.error(`Failed to push metrics data to Grafana: ${text}\n${body}`);
+                    // console.error(`Failed to push metrics data to Grafana: ${text}\n${body}`);
                 });
             } else {
-                console.log(`✅ Pushed ${metricsList.length} metrics`);
+                // console.log(`✅ Pushed ${metricsList.length} metrics`);
             }
         })
         .catch((error) => {
-            console.error('Error pushing metrics:', error);
+            // console.error('Error pushing metrics:', error);
         });
 }
 
