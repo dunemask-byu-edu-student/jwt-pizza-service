@@ -60,7 +60,7 @@ jobs:
             metrics: {
                 apiKey: process.env.GRAFANA_METRICS_API_KEY,
                 source: process.env.GRAFANA_METRICS_SOURCE,
-                url: "https://otlp-gateway-prod-us-west-0.grafana.net/otlp/v1/metrics"
+                url: 'https://otlp-gateway-prod-us-west-0.grafana.net/otlp/v1/metrics'
             }
           };" > src/config.js
           cat src/config.js
