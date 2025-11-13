@@ -9,8 +9,8 @@ class Logger {
                 path: req.originalUrl,
                 method: req.method,
                 statusCode: res.statusCode,
-                reqBody: "redacted",
-                resBody: "redacted",
+                reqBody: JSON.stringify(req.body),
+                resBody: JSON.stringify(resBody),
             };
             const level = this.statusToLogLevel(res.statusCode);
             this.log(level, 'http', logData);
