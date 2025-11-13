@@ -133,6 +133,7 @@ setInterval(() => {
 }, 60_000);
 
 function sendMetricsBatchToGrafana(metricsList) {
+    if (!config.metrics.enabled) return;
     const timeUnixNano = Date.now() * 1_000_000;
 
     const metricsPayload = metricsList.map((m) => {

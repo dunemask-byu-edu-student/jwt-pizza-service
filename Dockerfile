@@ -25,12 +25,14 @@ module.exports = {
   metrics: {
     apiKey: process.env.GRAFANA_METRICS_API_KEY,
     source: process.env.GRAFANA_METRICS_SOURCE,
-    url: "https://otlp-gateway-prod-us-west-0.grafana.net/otlp/v1/metrics"
+    url: "https://otlp-gateway-prod-us-west-0.grafana.net/otlp/v1/metrics",
+    enabled: true
   },
   logging: {
     apiKey: process.env.GRAFANA_LOGGING_API_KEY,
     source: process.env.GRAFANA_METRICS_SOURCE,
     url: "https://logs-prod-021.grafana.net/loki/api/v1/push",
+    enabled: true
   },
 };
 EOF
