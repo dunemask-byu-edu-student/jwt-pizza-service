@@ -118,16 +118,18 @@ orderRouter.post(
     const orderReq = req.body;
     const order = await DB.addDinerOrder(req.user, orderReq);
     const start = process.hrtime.bigint(); // high-resolution start time
+    const factoryRequestBody = {
+      diner: { id: req.user.id, name: req.user.name, email: req.user.email },
+      order,
+    };
+    logger.log("info", "factory-request", { ...j, jwt: j?.substring(0, 60) ?? "missing-jwt" });
     const r = await fetch(`${config.factory.url}/api/order`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         authorization: `Bearer ${config.factory.apiKey}`,
       },
-      body: JSON.stringify({
-        diner: { id: req.user.id, name: req.user.name, email: req.user.email },
-        order,
-      }),
+      body: JSON.stringify(factoryRequestBody),
     });
     const end = process.hrtime.bigint();
     const latencyMs = Number(end - start) / 1_000_000; // convert nanoseconds → milliseconds
@@ -137,7 +139,7 @@ orderRouter.post(
     const orderTotal = order.items.reduce((a, i) => a + i.price, 0);
     recordPizzaSale(r.ok, orderTotal);
     if (r.ok) {
-      logger.log("info", "factory", { ...j, jwt: j?.substring(0, 60) ?? "missing-jwt" });
+      logger.log("info", "factory-response", { ...j, jwt: j?.substring(0, 60) ?? "missing-jwt" });
       res.send({ order, followLinkToEndChaos: j.reportUrl, jwt: j.jwt });
     } else {
       res
