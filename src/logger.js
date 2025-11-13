@@ -21,7 +21,7 @@ class Logger {
     };
 
     log(level, type, logData) {
-        const labels = { component: config.source, level: level, type: type };
+        const labels = { component: config.logging.source, level: level, type: type };
         const values = [this.nowString(), this.sanitize(logData)];
         const logEvent = { streams: [{ stream: labels, values: [values] }] };
 
@@ -40,14 +40,13 @@ class Logger {
 
     sanitize(logData) {
         logData = JSON.stringify(logData);
-        if (logData.includes("token") || logData.includes("password")) return "redacted";
+        if (logData.includes("token") || logData.includes("password") || logData.includes("apiKey") || logData.includes("key")) return "redacted";
         return logData;
     }
 
     sendLogToGrafana(event) {
-         if (!config.logging.enabled) return;
+        if (!config.logging.enabled) return;
         const body = JSON.stringify(event);
-        console.log(body);
         fetch(`${config.logging.url}`, {
             method: 'post',
             body: body,

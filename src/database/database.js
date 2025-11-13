@@ -113,11 +113,23 @@ class DB {
   async listUsers(page = 1, name = "") {
     const connection = await this.getConnection();
     try {
+      // Ensure page is a number for a safe calculation
+      const safePage = Number(page);
+      if (isNaN(safePage) || safePage < 1) page = 1;
+
       const offset = this.getOffset(page, config.db.listPerPage);
-      // Security Risk
-      let query = `SELECT * FROM user \${WHERE_NAME} LIMIT ${offset},${config.db.listPerPage + 1}`;
+      const limit = config.db.listPerPage + 1; // Used for fetching one extra record
+
+      // *** SECURITY RISK AVOIDED HERE (User input 'name' is parameterized) ***
+      let query = `SELECT * FROM user \${WHERE_NAME} LIMIT ${offset},${limit}`;
+
+      // Use parameterization for user-supplied data ('name')
       query = query.replaceAll(`\${WHERE_NAME}`, !!name ? "WHERE LOWER(name) LIKE ?" : "");
-      let userResult = await this.query(connection, query, [`${name.toLowerCase()}`]);
+
+      // Pass the name as a parameter
+      let userResult = await this.query(connection, query, !!name ? [`%${name.toLowerCase()}%`] : []);
+      // Note: Added checks to only pass the parameter if 'name' is present.
+
       const more = userResult.length > config.db.listPerPage;
       if (more) userResult = userResult.slice(0, config.db.listPerPage);
 
