@@ -122,7 +122,7 @@ orderRouter.post(
       diner: { id: req.user.id, name: req.user.name, email: req.user.email },
       order,
     };
-    logger.log("info", "factory-request", { ...j, jwt: j?.substring(0, 60) ?? "missing-jwt" });
+    logger.log("info", "factory-request", { factoryRequestBody });
     const r = await fetch(`${config.factory.url}/api/order`, {
       method: "POST",
       headers: {
@@ -139,7 +139,7 @@ orderRouter.post(
     const orderTotal = order.items.reduce((a, i) => a + i.price, 0);
     recordPizzaSale(r.ok, orderTotal);
     if (r.ok) {
-      logger.log("info", "factory-response", { ...j, jwt: j?.substring(0, 60) ?? "missing-jwt" });
+      logger.log("info", "factory-response", { ...j, jwt: j?.jwt?.substring(0, 60) ?? "missing-jwt" });
       res.send({ order, followLinkToEndChaos: j.reportUrl, jwt: j.jwt });
     } else {
       res
