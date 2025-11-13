@@ -26,7 +26,12 @@ module.exports = {
     apiKey: process.env.GRAFANA_METRICS_API_KEY,
     source: process.env.GRAFANA_METRICS_SOURCE,
     url: "https://otlp-gateway-prod-us-west-0.grafana.net/otlp/v1/metrics"
-  }
+  },
+  logging: {
+    apiKey: process.env.GRAFANA_LOGGING_API_KEY,
+    source: process.env.GRAFANA_METRICS_SOURCE,
+    url: "https://logs-prod-021.grafana.net/loki/api/v1/push",
+  },
 };
 EOF
 RUN npm ci
