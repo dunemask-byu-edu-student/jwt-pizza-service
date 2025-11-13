@@ -4,6 +4,7 @@ const { Role, DB } = require("../database/database.js");
 const { authRouter } = require("./authRouter.js");
 const { asyncHandler, StatusCodeError } = require("../endpointHelper.js");
 const { recordPizzaSale, recordPizzaLatency } = require("../metrics.js");
+const logger = require("../logger.js");
 
 const orderRouter = express.Router();
 
@@ -136,6 +137,7 @@ orderRouter.post(
     const orderTotal = order.items.reduce((a, i) => a + i.price, 0);
     recordPizzaSale(r.ok, orderTotal);
     if (r.ok) {
+      logger.log("info", "factory", { ...j, jwt: j?.substring(0, 60) ?? "missing-jwt" });
       res.send({ order, followLinkToEndChaos: j.reportUrl, jwt: j.jwt });
     } else {
       res

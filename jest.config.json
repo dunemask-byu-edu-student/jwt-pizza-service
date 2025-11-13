@@ -7,7 +7,9 @@
         "node_modules",
         "src/index.js",
         "src/config.js",
-        "src/init.js"
+        "src/init.js",
+        "src/metrics.js",
+        "src/logger.js"
     ],
     "coverageReporters": [
         "json-summary",
