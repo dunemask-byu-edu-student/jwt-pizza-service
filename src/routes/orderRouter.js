@@ -142,6 +142,8 @@ orderRouter.post(
       logger.log("info", "factory-response", { ...j, jwt: j?.jwt?.substring(0, 60) ?? "missing-jwt" });
       res.send({ order, followLinkToEndChaos: j.reportUrl, jwt: j.jwt });
     } else {
+      logger.log("error", "factory-response", { ...j, jwt: j?.jwt?.substring(0, 60) ?? "missing-jwt" });
+      console.log({ ...j, jwt: "error" })
       res
         .status(500)
         .send({
